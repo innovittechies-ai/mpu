@@ -1,0 +1,6 @@
+{
+  "name": "Patel College of Science and Technology (PCST)",
+  "description": "Official institutional portal and About Us page for Patel College of Science and Technology (PCST) Bhopal, affiliated to RGPV and approved by AICTE.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

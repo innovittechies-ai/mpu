@@ -1,114 +1,95 @@
-import { EnquireModal } from "./components/EnquireModal";
-import { Footer } from "./components/Footer";
-import { Hero } from "./components/Hero";
-import { Sidebar } from "./components/Sidebar";
-import { SiteHeader } from "./components/SiteHeader";
-import { stats } from "./content";
-import { SiteProvider, useSite } from "./site";
-import { ABOUT_PAGES } from "./types";
-import {
-  AboutHome,
-  AdvisoryView,
-  ApprovalsView,
-  ChairmanView,
-  DirectorView,
-  FacultyView,
-} from "./views/AboutViews";
-import {
-  AcademicsPage,
-  AdmissionsPage,
-  ContactPage,
-  FacilitiesPage,
-  GalleryPage,
-  HomePage,
-  PlacementPage,
-} from "./views/SitePages";
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-function AboutSwitch() {
-  const { page } = useSite();
-  switch (page) {
-    case "chairman":
-      return <ChairmanView />;
-    case "director":
-      return <DirectorView />;
-    case "advisory":
-      return <AdvisoryView />;
-    case "faculty":
-      return <FacultyView />;
-    case "approvals":
-      return <ApprovalsView />;
-    default:
-      return <AboutHome />;
-  }
-}
-
-function PageBody() {
-  const { page } = useSite();
-  switch (page) {
-    case "home":
-      return <HomePage />;
-    case "academics":
-      return <AcademicsPage />;
-    case "admissions":
-      return <AdmissionsPage />;
-    case "placement":
-      return <PlacementPage />;
-    case "facilities":
-      return <FacilitiesPage />;
-    case "gallery":
-      return <GalleryPage />;
-    case "contact":
-      return <ContactPage />;
-    default:
-      return null;
-  }
-}
-
-function Shell() {
-  const { page } = useSite();
-  const aboutLayout = ABOUT_PAGES.includes(page);
-
-  return (
-    <div className="flex min-h-screen flex-col bg-paper text-slate-800">
-      <SiteHeader />
-      <Hero />
-      {(page === "home" || page === "about") && (
-        <div className="relative z-10 mx-auto -mt-10 w-full max-w-7xl px-4 sm:px-6">
-          <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {stats.map((item) => (
-              <div key={item.value} className="rounded-2xl bg-white px-4 py-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.65)] ring-1 ring-slate-200/80">
-                <dt className="text-xl font-extrabold text-navy">{item.value}</dt>
-                <dd className="mt-1 text-xs leading-5 text-slate-500">{item.label}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      )}
-      <main id="main" className="mx-auto w-full max-w-7xl flex-1 px-4 py-12 sm:px-6">
-        {aboutLayout ? (
-          <div className="grid items-start gap-8 lg:grid-cols-4">
-            <div className="min-w-0 lg:col-span-3">
-              <AboutSwitch />
-              <div className="mt-10">
-                <Sidebar variant="mobile" />
-              </div>
-            </div>
-            <Sidebar variant="desktop" />
-          </div>
-        ) : (
-          <PageBody />
-        )}
-      </main>
-      <Footer />
-      <EnquireModal />
-    </div>
-  );
-}
+import React, { useState } from 'react';
+import { Header } from './components/Header';
+import { HeroBanner } from './components/HeroBanner';
+import { MainContent } from './components/MainContent';
+import { Sidebar } from './components/Sidebar';
+import { Footer } from './components/Footer';
+import { AdmissionModal } from './components/AdmissionModal';
+import { BrochureModal } from './components/BrochureModal';
+import { VirtualTourModal } from './components/VirtualTourModal';
 
 export default function App() {
+  const [activeSection, setActiveSection] = useState('about-pcst');
+  const [isAdmissionOpen, setIsAdmissionOpen] = useState(false);
+  const [isBrochureOpen, setIsBrochureOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
+
+  const handleSelectSection = (sectionId: string) => {
+    setActiveSection(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
-    <SiteProvider>
-      <Shell />
-    </SiteProvider>
+    <div className="min-h-screen flex flex-col bg-slate-100 text-slate-800 font-sans selection:bg-red-700 selection:text-white">
+      {/* 1. STICKY HEADER & NAVIGATION */}
+      <Header
+        onOpenAdmission={() => setIsAdmissionOpen(true)}
+        onOpenTour={() => setIsTourOpen(true)}
+      />
+
+      {/* 2. FULL-WIDTH HERO SECTION WITH BREADCRUMB & STATS */}
+      <main className="flex-1">
+        <HeroBanner
+          onOpenAdmission={() => setIsAdmissionOpen(true)}
+          onOpenTour={() => setIsTourOpen(true)}
+          onOpenBrochure={() => setIsBrochureOpen(true)}
+        />
+
+        {/* 3. MAIN CONTENT CONTAINER (75% / 25% TWO-COLUMN LAYOUT ON DESKTOP) */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+            {/* LEFT COLUMN: Main Institutional Content (75% width: 9/12 cols) */}
+            <div className="lg:col-span-9 order-1">
+              <MainContent
+                onOpenAdmission={() => setIsAdmissionOpen(true)}
+                onOpenTour={() => setIsTourOpen(true)}
+                onOpenBrochure={() => setIsBrochureOpen(true)}
+              />
+            </div>
+
+            {/* RIGHT COLUMN: Sidebar Navigation & Widgets (25% width: 3/12 cols) */}
+            <div className="lg:col-span-3 order-2 lg:sticky lg:top-24">
+              <Sidebar
+                activeSection={activeSection}
+                onSelectSection={handleSelectSection}
+                onOpenAdmission={() => setIsAdmissionOpen(true)}
+                onOpenBrochure={() => setIsBrochureOpen(true)}
+                onOpenTour={() => setIsTourOpen(true)}
+              />
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* 4. COMPREHENSIVE MULTI-COLUMN DARK FOOTER */}
+      <Footer
+        onOpenAdmission={() => setIsAdmissionOpen(true)}
+        onOpenBrochure={() => setIsBrochureOpen(true)}
+      />
+
+      {/* MODAL DIALOGS */}
+      <AdmissionModal
+        isOpen={isAdmissionOpen}
+        onClose={() => setIsAdmissionOpen(false)}
+      />
+
+      <BrochureModal
+        isOpen={isBrochureOpen}
+        onClose={() => setIsBrochureOpen(false)}
+      />
+
+      <VirtualTourModal
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+      />
+    </div>
   );
 }
